@@ -1,17 +1,24 @@
 #!/bin/tcsh
-if ( $1 == "" ) then
+if ( $2 == "" ) then
 	echo ">> [INFO] Please input the data forder list."
-	echo ">>        Ex: ./checkAll.csh [data_card] "
+	echo ">>        Ex: ./checkAll.csh [data_card] [server]"
+        echo ">>        [data_card]:"
 	echo '>>        ................................................................'	
-	echo '>>        :    In data_card you should input like as following by vi "   :'
+	echo '>>        :    In data_card you should input like as following           :'
 	echo '>>        :    Ex: FUll_Path;Jobs_numbers                                :'
 	echo '>>        :        /dpm/grid.sinica.edu.tw/.../...;1004                  :'
 	echo '>>        ................................................................'
+        echo ">>        [server]: cmslpc or lxplus"
 	exit	
 endif
 if ( ! ( -e $1 ) ) then
 	echo ">> [WARING] $1 not found, please check."
 	exit
+endif
+
+if ( $2 != 'cmslpc' && $2 != 'lxplus' ) then
+	echo ">> [ERROR] $2 not found server options: cmslpc or lxplus."
+        exit
 endif
 
 rm -f check_log/status.txt 
@@ -22,7 +29,15 @@ set datasets=`cat "$1"`
 foreach data($datasets)
 	set name=`echo $data | awk -F ";" '{print $1}'`
 	set size=`echo $data | awk -F ";" '{print $2}'`
-	source check.csh $name $size | tee -a check_log/status.txt
+        source check.csh $name $size $2 | tee -a check_log/status.txt
+        #if ( $2 == 'cmslpc' ) then
+	#    source check_cmslpc.csh $name $size | tee -a check_log/status.txt
+        #else if ( $2 == 'lxplus' ) then
+	#    source check_lxplus.csh $name $size | tee -a check_log/status.txt
+        #else
+        #    echo ">> [ERROR] $2 not found server options: cmslpc or lxplus."
+        #    exit
+        #endif
 	#source check.csh $name $size | tee -a tmpStatus
 	#set Status=`cat tmpStatus | grep 'Status' | awk '{print $3}'`
 	#cat tmpStatus | grep 'Check'  | awk '{print $4}'                                 >> check_log/status.txt 

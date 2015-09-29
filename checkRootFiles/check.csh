@@ -2,12 +2,19 @@
 #########################################################################
 ################### check for the parameter or not#######################
 #########################################################################
-if ( "$1" == "" || "$2" == "" ) then
-	echo "Please add the path of dpm forder after the comment"
-	echo "	./check.csh [Path] [Job Number]"
-	echo "EX: ./check.csh /dpm/phys.ntu.edu.tw/.../... 100"
+if ( $3 == "" ) then
+	echo ">> [INFO] Usage for checking files for eos"
+	echo ">>        ./check_lxplus.csh [Path] [Job Number] [server]"
+        echo ">>        [server] cmslpc or lxplus"
+	echo ">>        Ex: ./check.csh /dpm/phys.ntu.edu.tw/.../... 100 cmslpc"
 	exit	
 endif
+
+if ( $3 != 'cmslpc' && $3 != 'lxplus' ) then
+    echo ">> [ERROR] $3 wrong server options: cmslpc or lxplus"
+    exit
+endif
+
 #########################################################################
 ################### check the number of the root ########################
 #########################################################################
@@ -25,9 +32,17 @@ echo ">------------------------------------------------------------------<"
 echo ">> [INFO] Check $dir "
 ######################### record dataests  ##############################
 echo ">>        Catching EOS..."
-ls -ltr $path_1 | grep '.root' | awk '{print $9"/"$5"/"$6"/"$7"/"$8}' > "tmp1$dir" #reall name/size/mounth/day/hour:min
-if( `cat "tmp1$dir"` == "" ) then
-	echo ">> [ERROR] Worng path!"
+if ( $3 == 'lxplus' ) then
+    eos ls -l $path_1 | grep '.root' | awk '{print $9"/"$5"/"$6"/"$7"/"$8}' > "tmp1$dir" #reall name/size/mounth/day/hour:min
+
+else if ( $3 == 'cmslpc' ) then
+    ls -l $path_1 | grep '.root' | awk '{print $9"/"$5"/"$6"/"$7"/"$8}' > "tmp1$dir" #reall name/size/mounth/day/hour:min
+
+endif
+
+if ( `cat "tmp1$dir"` == "" ) then
+	echo ">> [WARING] Nothing here: "
+        echo ">>          $path_1"
 	rm -f "tmp1$dir"
 	exit
 endif
