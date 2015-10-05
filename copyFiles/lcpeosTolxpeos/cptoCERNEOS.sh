@@ -33,6 +33,7 @@ do
 		for root in $roots
 		do
 			#echo srmcp file:///$loc/$root "srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=$tar/$root"
+			sleep 5
 			srmcp "file:///$loc/$root" "srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=$tar/$root"
 			if [ `echo $num%100 | bc` == 0 ]; then
 				echo ">>        Copying $num/$nroots..."
