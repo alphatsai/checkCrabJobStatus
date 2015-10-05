@@ -30,14 +30,6 @@ foreach data($datasets)
 	set name=`echo $data | awk -F ";" '{print $1}'`
 	set size=`echo $data | awk -F ";" '{print $2}'`
         source check.csh $name $size $2 | tee -a check_log/status.txt
-        #if ( $2 == 'cmslpc' ) then
-	#    source check_cmslpc.csh $name $size | tee -a check_log/status.txt
-        #else if ( $2 == 'lxplus' ) then
-	#    source check_lxplus.csh $name $size | tee -a check_log/status.txt
-        #else
-        #    echo ">> [ERROR] $2 not found server options: cmslpc or lxplus."
-        #    exit
-        #endif
 	#source check.csh $name $size | tee -a tmpStatus
 	#set Status=`cat tmpStatus | grep 'Status' | awk '{print $3}'`
 	#cat tmpStatus | grep 'Check'  | awk '{print $4}'                                 >> check_log/status.txt 
