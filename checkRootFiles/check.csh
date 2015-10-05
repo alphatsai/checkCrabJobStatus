@@ -66,23 +66,41 @@ touch "check_log/cklog1_$dir" "check_log/cklog2_$dir"
 
 set no_count=0
 set many_count=0
+set badsize=0
 set i=1
 echo ">>        Making log file in ./check_log..."
 foreach n($size)
-	if      ( $n == 0 ) then
-                echo "Num $i .root is not exit  " >> "check_log/cklog1_$dir" 
-		@ no_count++
-        else if ( $n == 1 ) then
-		#echo "Num $i ok !  "
-	else  
-		echo "--------------------------------------------------------" >> "check_log/cklog2_$dir"
-		echo "Num $i have $n root " >> "check_log/cklog2_$dir"
-		echo "--------------------------------------------------------" >> "check_log/cklog2_$dir"
-		cat -A "tmp1$dir" | grep $fileName'_'$i'_' | awk -F "/" '{print $1"    "$2"    "$3" "$4" "$5}' | sed 's/\^\[\[00m//g' >> "check_log/cklog2_$dir" # Plaese change the name of the file (EX: myRoot_1_1_sjoe.root, results->myRoot )
-		echo "--------------------------------------------------------" >> "check_log/cklog2_$dir"
-		echo "" >> "check_log/cklog2_$dir"
-		@ many_count++
-	endif
+	if ( $n == 0 ) then
+            echo "Num $i .root is not exit  " >> "check_log/cklog1_$dir" 
+	    @ no_count++
+        else
+            set rootsize=`cat -A "tmp1$dir" | grep $fileName'_'$i'_' | awk -F "/" '{print $2}'`
+            set isGoodN=`echo $n' == 1' | bc` 
+            set isGoodRootSize=`echo $rootsize' > 100' | bc` 
+            if ( $isGoodN == 0 || $isGoodRootSize == 0 ) then   
+	        echo "--------------------------------------------------------" >> "check_log/cklog2_$dir"
+	        echo "Num $i have $n root " >> "check_log/cklog2_$dir"
+	        echo "--------------------------------------------------------" >> "check_log/cklog2_$dir"
+	        cat -A "tmp1$dir" | grep $fileName'_'$i'_' | awk -F "/" '{print $1"    "$2"    "$3" "$4" "$5}' | sed 's/\^\[\[00m//g' >> "check_log/cklog2_$dir" # Plaese change the name of the file (EX: myRoot_1_1_sjoe.root, results->myRoot )
+	        echo "--------------------------------------------------------" >> "check_log/cklog2_$dir"
+	        echo "" >> "check_log/cklog2_$dir"
+	        @ many_count++
+                if ( $isGoodRootSize == 0 ) then
+                    @ badsize++
+                endif
+            endif
+        endif
+        #else if ( $n == 1 ) then
+	#	#echo "Num $i ok !  "
+	#else  
+	#	echo "--------------------------------------------------------" >> "check_log/cklog2_$dir"
+	#	echo "Num $i have $n root " >> "check_log/cklog2_$dir"
+	#	echo "--------------------------------------------------------" >> "check_log/cklog2_$dir"
+	#	cat -A "tmp1$dir" | grep $fileName'_'$i'_' | awk -F "/" '{print $1"    "$2"    "$3" "$4" "$5}' | sed 's/\^\[\[00m//g' >> "check_log/cklog2_$dir" # Plaese change the name of the file (EX: myRoot_1_1_sjoe.root, results->myRoot )
+	#	echo "--------------------------------------------------------" >> "check_log/cklog2_$dir"
+	#	echo "" >> "check_log/cklog2_$dir"
+	#	@ many_count++
+	#endif
 	@ i++
 end
 if ( $no_count != 0 || $many_count != 0 ) then
@@ -102,6 +120,9 @@ if ( `head check_log/cklog1_$dir` == "" && `head check_log/cklog2_$dir` == "" ) 
 	echo "All Done" > check_log/Done_ll_"$dir2"_ll_"$dir"
 else if ( `head check_log/cklog1_$dir` == "" && `head check_log/cklog2_$dir` != "" ) then
 	echo ">>        [Duplicate] Duplicates exsist"
+        if ( $badsize != 0 ) then
+	    echo ">>        [Badsize] Bad size of root exsist"
+        endif
 	mv check_log/NotDone_ll_"$dir2"_ll_"$dir" check_log/Duplicate_ll_"$dir2"_ll_"$dir"	
 endif
 set susNum=0.
