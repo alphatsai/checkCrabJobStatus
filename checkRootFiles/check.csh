@@ -29,7 +29,7 @@ set endnum=0
 rm -f "tmp1$dir" "tmp2$dir" "tmp3$dir" "check_log/NotDone_ll_"$dir2"_ll_"$dir"" "check_log/Done_ll_"$dir2"_ll_"$dir"" "check_log/Duplicate_ll_"$dir2"_ll_"$dir""
 
 echo ">------------------------------------------------------------------<"
-echo ">> [INFO] Check $dir "
+echo ">> [INFO] Check $dir2/$dir "
 ######################### record dataests  ##############################
 echo ">>        Catching EOS..."
 if ( $3 == 'lxplus' ) then
@@ -71,12 +71,15 @@ set i=1
 echo ">>        Making log file in ./check_log..."
 foreach n($size)
 	if ( $n == 0 ) then
-            echo "Num $i .root is not exit  " >> "check_log/cklog1_$dir" 
+            echo "Num $i .root is not exist  " >> "check_log/cklog1_$dir" 
 	    @ no_count++
         else
-            set rootsize=`cat -A "tmp1$dir" | grep $fileName'_'$i'_' | awk -F "/" '{print $2}'`
-            set isGoodN=`echo $n' == 1' | bc` 
-            set isGoodRootSize=`echo $rootsize' > 100' | bc` 
+            set isGoodRootSize=1
+            set isGoodN=`echo $n' == 1' | bc`
+            if ( $isGoodN == 1 ) then 
+                set rootsize=`cat -A "tmp1$dir" | grep $fileName'_'$i'_' | awk -F "/" '{print $2}'`
+                set isGoodRootSize=`echo $rootsize' > 1000' | bc` 
+            endif
             if ( $isGoodN == 0 || $isGoodRootSize == 0 ) then   
 	        echo "--------------------------------------------------------" >> "check_log/cklog2_$dir"
 	        echo "Num $i have $n root " >> "check_log/cklog2_$dir"
