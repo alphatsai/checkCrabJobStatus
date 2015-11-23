@@ -22,11 +22,12 @@ set rootName='results'
 
 cd check_log
 	ls -l | grep Duplicate | awk '{print $9}' | grep -v ^$ >! tmp_1
+	#ls -l | grep NotDone | awk '{print $9}' | grep -v ^$ >! tmp_1
 	set log_list = `cat -A tmp_1 | grep -v tmp_1 | sed 's/\^\[\[00m//g' | sed 's/\$//g' | grep -v ^$`
 	foreach log($log_list)
 		set folder1=`echo $log | awk -F "_ll_" '{print $2}'`
 		set folder2=`echo $log | awk -F "_ll_" '{print $3}'`
-		set multijobs  = `cat $log | egrep -v 'Datasets|#' | grep Num | awk '{print $2"/"$4}'` #save jobnum/filenum
+		set multijobs  = `cat $log | egrep -v 'Datasets|#|is not exist' | grep Num | awk '{print $2"/"$4}'` #save jobnum/filenum
 		set nmultijobs = `echo $multijobs | wc -w` #save jobnum/filenum
 
 		set script="../rmscript/"$folder1"_"$folder2".csh"
