@@ -25,7 +25,7 @@ rm -f check_log/status.txt
 touch check_log/status.txt 
 #rm -f tmpStatus check_log/status.txt check_log/status.html
 #touch check_log/status.txt check_log/status.html
-set datasets=`cat "$1"`
+set datasets=`cat "$1" | grep -v "^#"`
 foreach data($datasets)
 	set name=`echo $data | awk -F ";" '{print $1}'`
 	set size=`echo $data | awk -F ";" '{print $2}'`
@@ -55,7 +55,7 @@ end
 set finish=`cat check_log/status.txt | grep '100.0%'    | wc -l`
 set done=`  cat check_log/status.txt | grep 'DONE'      | wc -l`
 set dup=`   cat check_log/status.txt | grep 'Duplicate' | wc -l`
-set all=`cat $1 | wc -l `
+set all=`cat $1 | grep -v "^#" | wc -l `
 set effall=`echo "scale=1; $finish*100/$all" | bc`
 echo "" | tee -a check_log/status.txt
 echo ">@ ============================================================== @<" | tee -a check_log/status.txt
